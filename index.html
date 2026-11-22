@@ -45,9 +45,19 @@ canvas#g{position:absolute;left:0;top:0;image-rendering:pixelated;image-renderin
 .x{position:absolute;right:6px;top:4px;cursor:pointer;font-size:12px}
 #mapc{width:min(78vmin,448px);height:min(78vmin,448px);image-rendering:pixelated;display:block;border:2px solid #000}
 .full{position:absolute;inset:0;background:#0b0816;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;line-height:2}
-#title{display:flex;background:radial-gradient(circle at 50% 40%,#2b1a55,#0b0816 70%)}
-#title h1{font-size:clamp(18px,5vw,34px);color:#ffd23f;text-shadow:4px 4px #4a3a78;margin:0 0 14px;line-height:1.4}
-#title p{font-size:8px;max-width:560px;color:#cfc3f5}
+#title{display:flex;padding:0;background:#070620}
+#tc{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:0% 100%;image-rendering:pixelated}
+#tin{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;height:100%;overflow-y:auto;padding:10px;gap:10px;line-height:1.6}
+#tin>:first-child{margin-top:auto}#tin>:last-child{margin-bottom:auto}
+.pre{font-size:clamp(6px,1.6vw,9px);letter-spacing:3px;color:#e8d8ff;text-shadow:0 0 8px #b05cff,1px 1px #000}
+#title h1{font-size:clamp(26px,8vw,62px);margin:0;line-height:1.15;background:linear-gradient(#fff8c8,#ffd23f 50%,#b8860b);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 3px 0 #3a1a00) drop-shadow(0 0 14px #ffb02099)}
+#title h1 span{display:block;font-size:.34em;letter-spacing:.3em;margin-bottom:.4em}
+.orn{display:flex;align-items:center;gap:8px;width:min(340px,70vw)}.orn i{flex:1;height:2px;background:linear-gradient(90deg,transparent,#c9a227,transparent)}.orn b{width:8px;height:8px;background:#ffd23f;transform:rotate(45deg)}
+#tbox{background:#0a0620d0;border:3px double #c9a227;padding:10px 12px 8px;box-shadow:0 0 18px #000a,inset 0 0 20px #27145c88;max-width:96vw}
+.tl{font-size:8px;color:#ffd23f;margin-bottom:2px;letter-spacing:2px}
+#play{font-size:clamp(10px,2.6vw,13px);padding:12px 22px;background:linear-gradient(#8a6ae0,#5a3fb0);border:3px solid #ffd23f;margin-top:4px;animation:pl 1.6s ease-in-out infinite;text-shadow:1px 1px #000}
+@keyframes pl{50%{box-shadow:0 0 18px #ffd23faa;transform:scale(1.04)}}
+.ctl{font-size:6px;color:#c8b8f0;line-height:2;max-width:92vw;text-shadow:1px 1px #000}
 #outfits{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:94vw;margin-top:8px}
 .of{width:56px;height:56px;background:#000a;border:3px solid #4a3a78;cursor:pointer;padding:0}
 .of.sel{border-color:#ffd23f;background:#2a2150}
@@ -80,13 +90,14 @@ canvas#g{position:absolute;left:0;top:0;image-rendering:pixelated;image-renderin
 <div class="panel" id="diary"><span class="x" data-close>✕</span><h2>DIÁRIO DA SOMBRA</h2><div id="dbody"></div></div>
 <div class="panel" id="mapw"><span class="x" data-close>✕</span><h2 id="mapt">MAPA</h2><canvas id="mapc"></canvas><div style="margin-top:6px;font-size:6px;color:#b8a8e8">Branco: você · Vermelho X: tesouro · Amarelo: altar</div></div>
 
-<div class="full" id="title">
- <h1>O MUNDO<br>DE SOMBRA</h1>
- <p>Você é a Sombra. Explore a ilha, entre nas cavernas, ache tesouros, reúna gemas e descubra o mistério do altar.</p>
- <p style="margin-top:14px">WASD/Setas: andar · SHIFT: correr · ESPAÇO ou clique: ação<br>E: usar item · 1-9/Q: escolher · C: fabricar · J: diário · M: mapa · F: lanterna</p>
- <p style="margin-top:14px;color:#ffd23f">ESCOLHA A ROUPA DA SOMBRA</p><div id="outfits"></div><div id="oname" style="font-size:9px;margin-top:6px"></div>
- <button class="btn" id="play">JOGAR</button>
-</div>
+<div class="full" id="title"><canvas id="tc"></canvas><div id="tin">
+ <div class="pre">UMA AVENTURA NAS CAVERNAS DA ILHA</div>
+ <h1><span>O MUNDO DE</span>SOMBRA</h1>
+ <div class="orn"><i></i><b></b><i></i></div>
+ <div id="tbox"><div class="tl">ESCOLHA SEU TRAJE</div><div id="outfits"></div><div id="oname" style="font-size:9px;margin-top:6px"></div></div>
+ <button class="btn" id="play">▶ NOVA AVENTURA</button>
+ <div class="ctl">WASD/Setas: andar · SHIFT: correr · ESPAÇO ou clique: ação<br>E: usar · C: fabricar · J: diário · M: mapa · F: lanterna · ENTER: começar</div>
+</div></div>
 <div class="full" id="dead" style="background:#200812ee"><h2 style="color:#ff6b7a">A SOMBRA SE DISSIPOU...</h2><p style="font-size:8px">Mas sombras sempre voltam.</p><button class="btn" id="respawn">VOLTAR À PRAIA</button></div>
 <div class="full" id="end" style="background:#0b0816f5"><h2 style="color:#ffd23f;font-size:14px">O ALTAR SE ABRE</h2><p style="font-size:8px;max-width:560px;line-height:2.2">As quatro gemas acendem juntas. O altar se abre como uma porta, e do outro lado há uma praia, a luz da manhã e uma silhueta que acena.<br><br>Sombra entende: nunca foi náufrago. Era a parte que ficou para trás, guardando a ilha. Agora pode voltar para casa... ou ficar e explorar o que ainda não viu.<br><br>FIM DA PRIMEIRA EXPEDIÇÃO</p><button class="btn" id="cont">CONTINUAR EXPLORANDO</button></div>
 <div id="fade"></div><div id="flash"></div>
@@ -516,7 +527,7 @@ let time=DAY*.08;
 const keys={};let mouseDown=false,joy={x:0,y:0},tAct=false,tRun=false;
 addEventListener('keydown',e=>{
  if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();
- if(e.repeat){return}keys[e.code]=true;onKey(e.code);
+ if(e.repeat){return}if(state==='title'){if(e.code==='Enter')startGame();else if(e.code==='ArrowRight'||e.code==='ArrowLeft')pickOutfit((P.outfit+(e.code==='ArrowRight'?1:OUT.length-1))%OUT.length);return}keys[e.code]=true;onKey(e.code);
 });
 addEventListener('keyup',e=>{keys[e.code]=false});
 function onKey(c){
@@ -652,10 +663,50 @@ function hud(){
 }
 const l0=()=>P.layer===0;
 
+/* ---------- tela inicial ---------- */
+const tc=$('tc'),tg=tc.getContext('2d');tc.width=320;tc.height=180;
+const skyc=mk(320,180),fgc=mk(320,180),HZ=118,STARS=[],FF=[];
+(()=>{const r=mulberry32(42);for(let i=0;i<90;i++)STARS.push({x:(r()*320)|0,y:(r()*95)|0,p:r()*6,b:r()<.2?2:1});for(let i=0;i<34;i++)FF.push({x:r()*320,y:90+r()*85,vx:(r()-.5)*8,vy:(r()-.5)*5,p:r()*6,c:r()<.7?'#ffe27a':'#7ff4ff'});
+ let g=skyc.getContext('2d');const gr=g.createLinearGradient(0,0,0,HZ+6);gr.addColorStop(0,'#05041a');gr.addColorStop(.5,'#2a1560');gr.addColorStop(.85,'#a8467e');gr.addColorStop(1,'#e8806a');g.fillStyle=gr;g.fillRect(0,0,320,180);
+ g=fgc.getContext('2d');
+ const layer=(col,base,amp,f1,f2,ph)=>{g.fillStyle=col;for(let x=0;x<320;x++){const h=base-(amp*(.6+.4*Math.sin(x*f1+ph))+amp*.5*Math.sin(x*f2+ph*2));g.fillRect(x,h|0,1,HZ-(h|0))}};
+ layer('#5a2f80',HZ-4,16,.021,.07,1);layer('#35195f',HZ-2,13,.035,.11,3);
+ const sg=g.createLinearGradient(0,HZ,0,180);sg.addColorStop(0,'#33307e');sg.addColorStop(1,'#070b30');g.fillStyle=sg;g.fillRect(0,HZ,320,62);
+ g.fillStyle='#1c1046';g.fillRect(190,HZ-3,24,3);g.fillRect(196,HZ-5,10,2);g.fillRect(40,HZ-2,16,2);
+ const pine=(x,y,h)=>{g.fillStyle='#04030a';for(let i=0;i<4;i++){const w=3+i*2,yy=y-h+i*(h/4)|0;g.fillRect(x-(w>>1),yy,w,(h/4|0)+1)}g.fillRect(x,y-1,1,3)};
+ g.beginPath();g.moveTo(0,180);g.lineTo(0,124);g.lineTo(18,114);g.lineTo(44,106);g.lineTo(72,102);g.lineTo(96,106);g.lineTo(112,120);g.lineTo(124,140);g.lineTo(144,164);g.lineTo(170,180);g.closePath();g.fillStyle='#08060f';g.fill();
+ g.strokeStyle='#4a2f8a';g.lineWidth=1;g.beginPath();g.moveTo(0,124.5);g.lineTo(18,114.5);g.lineTo(44,106.5);g.lineTo(72,102.5);g.lineTo(96,106.5);g.lineTo(112,120.5);g.stroke();
+ pine(60,104,20);pine(69,102,15);pine(80,104,18);pine(92,108,15);pine(104,116,12);
+ // caverna
+ g.fillStyle='#000';g.fillRect(126,150,14,16);g.fillRect(128,147,10,3);g.fillRect(130,145,6,2);
+})();
+function titleDraw(t){
+ const g=tg;g.globalCompositeOperation='source-over';g.imageSmoothingEnabled=false;
+ g.drawImage(skyc,0,0);
+ for(const s of STARS){g.globalAlpha=.35+.65*Math.abs(Math.sin(t*1.6+s.p));g.fillStyle='#fff';g.fillRect(s.x,s.y,s.b,s.b)}g.globalAlpha=1;
+ // lua
+ g.globalCompositeOperation='lighter';let gr=g.createRadialGradient(245,44,6,245,44,60);gr.addColorStop(0,'rgba(255,240,200,.45)');gr.addColorStop(1,'rgba(255,240,200,0)');g.fillStyle=gr;g.fillRect(185,0,120,110);g.globalCompositeOperation='source-over';
+ g.fillStyle='#fff4d6';g.beginPath();g.arc(245,44,16,0,7);g.fill();g.fillStyle='#e6d8ae';g.fillRect(238,38,5,4);g.fillRect(249,47,6,5);g.fillRect(241,50,3,3);
+ g.drawImage(fgc,0,0);
+ // reflexo da lua
+ for(let y=HZ+2;y<180;y+=3){const w=5+(y-HZ)*.28+Math.sin(t*2+y*.7)*3;g.globalAlpha=Math.max(0,.55-(y-HZ)/130);g.fillStyle='#ffeebb';g.fillRect(245-w/2,y,w,1)}g.globalAlpha=1;
+ // brilho da caverna
+ g.globalCompositeOperation='lighter';gr=g.createRadialGradient(133,158,2,133,158,26+Math.sin(t*3)*2);gr.addColorStop(0,'rgba(176,92,255,.7)');gr.addColorStop(1,'rgba(176,92,255,0)');g.fillStyle=gr;g.fillRect(100,128,70,60);g.globalCompositeOperation='source-over';
+ // Sombra no penhasco
+ const spr=PSPRS[P.outfit][1][0];g.drawImage(spr,16,112-31,32,32);
+ g.globalCompositeOperation='lighter';gr=g.createRadialGradient(37,86,0,37,86,9);gr.addColorStop(0,'rgba(127,244,255,'+(.45+.2*Math.sin(t*3))+')');gr.addColorStop(1,'rgba(127,244,255,0)');g.fillStyle=gr;g.fillRect(26,75,22,22);g.globalCompositeOperation='source-over';
+ // névoa
+ for(let k=0;k<3;k++){const o=((t*(5+k*3))%320),y=128+k*16;g.globalAlpha=.09;g.fillStyle='#c8b8ff';for(const dx of[-320,0])g.fillRect(o+dx,y,320,5+k*2);}g.globalAlpha=1;
+ // vaga-lumes
+ for(const f of FF){f.x+=f.vx*.016;f.y+=f.vy*.016;if(f.x<0)f.x=320;if(f.x>320)f.x=0;if(f.y<85||f.y>178)f.vy*=-1;g.globalAlpha=.3+.7*Math.abs(Math.sin(t*2+f.p));g.fillStyle=f.c;g.fillRect(f.x|0,f.y|0,2,2)}g.globalAlpha=1;
+ // vinheta
+ gr=g.createRadialGradient(160,90,60,160,90,200);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.65)');g.fillStyle=gr;g.fillRect(0,0,320,180);
+}
+
 let last=0;
 function loop(t){requestAnimationFrame(loop);const dt=Math.min(.05,(t-last)/1000||0);last=t;
  if(state==='play'&&!dead){if(!menu||menu==='craft'||menu==='diary'||menu==='mapw'){if(!menu)update(dt);else{time+=0}}}
- if(state!=='title'){render();hud()}
+ if(state!=='title'){render();hud()}else titleDraw(t/1000)
 }
 function startGame(){
  try{ac=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}

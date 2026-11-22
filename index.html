@@ -48,6 +48,10 @@ canvas#g{position:absolute;left:0;top:0;image-rendering:pixelated;image-renderin
 #title{display:flex;background:radial-gradient(circle at 50% 40%,#2b1a55,#0b0816 70%)}
 #title h1{font-size:clamp(18px,5vw,34px);color:#ffd23f;text-shadow:4px 4px #4a3a78;margin:0 0 14px;line-height:1.4}
 #title p{font-size:8px;max-width:560px;color:#cfc3f5}
+#outfits{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:94vw;margin-top:8px}
+.of{width:56px;height:56px;background:#000a;border:3px solid #4a3a78;cursor:pointer;padding:0}
+.of.sel{border-color:#ffd23f;background:#2a2150}
+.of img{width:44px;height:44px;image-rendering:pixelated}
 #fade,#flash{position:absolute;inset:0;pointer-events:none;opacity:0}
 #fade{background:#000;transition:opacity .35s}
 #flash{background:#e0203a;transition:opacity .25s}
@@ -80,6 +84,7 @@ canvas#g{position:absolute;left:0;top:0;image-rendering:pixelated;image-renderin
  <h1>O MUNDO<br>DE SOMBRA</h1>
  <p>Você é a Sombra. Explore a ilha, entre nas cavernas, ache tesouros, reúna gemas e descubra o mistério do altar.</p>
  <p style="margin-top:14px">WASD/Setas: andar · SHIFT: correr · ESPAÇO ou clique: ação<br>E: usar item · 1-9/Q: escolher · C: fabricar · J: diário · M: mapa · F: lanterna</p>
+ <p style="margin-top:14px;color:#ffd23f">ESCOLHA A ROUPA DA SOMBRA</p><div id="outfits"></div><div id="oname" style="font-size:9px;margin-top:6px"></div>
  <button class="btn" id="play">JOGAR</button>
 </div>
 <div class="full" id="dead" style="background:#200812ee"><h2 style="color:#ff6b7a">A SOMBRA SE DISSIPOU...</h2><p style="font-size:8px">Mas sombras sempre voltam.</p><button class="btn" id="respawn">VOLTAR À PRAIA</button></div>
@@ -123,7 +128,7 @@ const ORDER=Object.keys(ITEM);
 const idx=(x,y)=>y*N+x, inb=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
 let seed,layers,exp,tileHp,regrow,crates,runeAt,spots,ents,entrances,start,particles=[];
 const S={wood:0,stone:0,coal:0,iron:0,drank:0,cave:false,map:false,dug:0,gems:new Set(),runes:new Set(),ghost:0,craft:{},altar:false,log:[]};
-const P={x:0,y:0,dir:2,hp:100,food:100,water:100,en:100,inv:{},gear:{axe:0,pick:0,sword:0,shovel:0,lantern:0},layer:0,light:true,sel:null,anim:0,swing:0,cd:0,inv_t:0,stairCd:0,tool:null,gold:0};
+const P={x:0,y:0,dir:2,hp:100,food:100,water:100,en:100,inv:{},gear:{axe:0,pick:0,sword:0,shovel:0,lantern:0},layer:0,light:true,outfit:0,sel:null,anim:0,swing:0,cd:0,inv_t:0,stairCd:0,tool:null,gold:0};
 function tileAt(l,x,y){return inb(x,y)?layers[l][idx(x,y)]:(l?CROCK:DEEP)}
 function setTile(l,x,y,t){layers[l][idx(x,y)]=t}
 const isSolid=(l,x,y)=>SOLIDT[tileAt(l,x,y)]===1;
@@ -368,17 +373,39 @@ function tileCanvas(id,v,f){
  }
  tcache.set(key,c);return c;
 }
-function mkPlayer(dir,fr){
- const c=mk(),g=c.getContext('2d'),rim='#8a6fe0',body='#120d1f';
+const OUT=[
+ {n:'Sombra pura'},
+ {n:'Explorador',shirt:'#6b8e3a',pants:'#6b4423',hat:'explorer',hc:'#c9a05a'},
+ {n:'Pirata',shirt:'#e8e8f0',shirt2:'#1a1a2a',pants:'#3a3a5a',hat:'bandana',hc:'#d02a3a'},
+ {n:'Mago',shirt:'#4a2a9a',pants:'#4a2a9a',robe:1,hat:'wizard',hc:'#4a2a9a'},
+ {n:'Náufrago',shirt:'#e8923a',pants:'#7a6a4a',short:1},
+ {n:'Armadura',shirt:'#a7adb8',pants:'#6f7480',hat:'helmet',hc:'#c8ccd6'},
+ {n:'Realeza',shirt:'#b8202f',pants:'#5a1020',hat:'crown',hc:'#ffd23f',trim:'#ffd23f'}];
+function mkPlayer(dir,fr,o){
+ const c=mk(),g=c.getContext('2d'),rim='#8a6fe0',body='#120d1f',O=OUT[o]||OUT[0];
  const legs=fr?[[5,13,2,3],[9,12,2,3]]:[[5,12,2,3],[9,13,2,3]];
  const rects=[[4,1,8,6],[3,7,10,6],...legs.map(l=>[l[0]-1,l[1]-1,l[2]+2,l[3]+1])];
- g.fillStyle=rim;for(const r of rects)g.fillRect(r[0]-0,r[1]-0,r[2],r[3]);
+ g.fillStyle=rim;for(const r of rects)g.fillRect(r[0],r[1],r[2],r[3]);
  g.fillStyle=body;g.fillRect(5,2,6,5);g.fillRect(4,8,8,4);g.fillRect(2,8,2,4);g.fillRect(12,8,2,4);for(const l of legs)g.fillRect(l[0],l[1],l[2],l[3]);
+ if(O.shirt){
+  for(const l of legs){const h=O.short?1:l[3];R(g,l[0],l[1],l[2],O.robe?l[3]:h,O.pants)}
+  R(g,4,8,8,4,O.shirt);R(g,2,8,2,4,O.shirt);R(g,12,8,2,4,O.shirt);
+  if(O.shirt2){for(let y=8;y<12;y+=2)R(g,2,y,12,1,O.shirt2)}
+  if(O.robe){R(g,4,12,8,2,O.shirt);R(g,7,9,2,4,'#7a5ad0')}
+  if(O.trim){R(g,4,8,8,1,O.trim);R(g,7,9,2,3,O.trim)}
+  if(O.hat==='helmet'||O.hat==='armor'){R(g,3,10,1,1,'#fff6');}
+ }
+ const h=O.hc;
+ if(O.hat==='explorer'){R(g,3,2,10,1,h);R(g,5,0,6,2,h);R(g,5,1,6,1,'#7a5a2a')}
+ else if(O.hat==='bandana'){R(g,4,1,8,2,h);if(dir===3||dir===0)R(g,3,2,1,3,h);else if(dir===1)R(g,12,2,1,3,h)}
+ else if(O.hat==='wizard'){R(g,3,2,10,1,h);R(g,5,1,6,1,h);R(g,6,0,4,1,h);R(g,7,1,1,1,'#ffd23f')}
+ else if(O.hat==='helmet'){R(g,4,1,8,2,h);R(g,4,3,1,3,h);R(g,11,3,1,3,h);R(g,7,0,2,1,'#e03a4e')}
+ else if(O.hat==='crown'){R(g,5,1,6,2,h);R(g,5,0,1,1,h);R(g,7,0,2,1,h);R(g,10,0,1,1,h)}
  g.fillStyle='#7ff4ff';
  if(dir===2){g.fillRect(6,4,1,2);g.fillRect(9,4,1,2)}else if(dir===1){g.fillRect(10,4,1,2);g.fillRect(8,4,1,2)}else if(dir===3){g.fillRect(5,4,1,2);g.fillRect(7,4,1,2)}
  return c;
 }
-const PSPR=[0,1,2,3].map(d=>[mkPlayer(d,0),mkPlayer(d,1)]);
+const PSPRS=OUT.map((_,o)=>[0,1,2,3].map(d=>[mkPlayer(d,0,o),mkPlayer(d,1,o)]));
 function mkEnt(type,fr){const c=mk(),g=c.getContext('2d');
  if(type==='crab'){R(g,3,7,10,5,'#d9482b');R(g,4,6,8,1,'#f0603f');R(g,1,4+fr,3,3,'#e8583b');R(g,12,4+(1-fr),3,3,'#e8583b');R(g,5,5,1,2,'#fff');R(g,10,5,1,2,'#fff');R(g,6,5,1,1,'#000');R(g,11,5,1,1,'#000');R(g,3,12,1,2+fr,'#a8321c');R(g,6,12,1,2,'#a8321c');R(g,9,12,1,2,'#a8321c');R(g,12,12,1,2+(1-fr),'#a8321c')}
  else if(type==='bat'){R(g,7,6,2,4,'#3a2a55');R(g,6,5,1,2,'#3a2a55');R(g,9,5,1,2,'#3a2a55');if(fr){R(g,1,3,5,3,'#5a3f85');R(g,10,3,5,3,'#5a3f85');R(g,0,2,2,2,'#5a3f85');R(g,14,2,2,2,'#5a3f85')}else{R(g,1,6,5,3,'#5a3f85');R(g,10,6,5,3,'#5a3f85');R(g,0,8,2,2,'#5a3f85');R(g,14,8,2,2,'#5a3f85')}R(g,7,6,1,1,'#ff4455');R(g,8,6,1,1,'#ff4455')}
@@ -595,7 +622,7 @@ function render(){
  const list=[];for(const e of ents[l])list.push(e);list.push(P);
  list.sort((a,b)=>a.y-b.y);
  for(const e of list){
-  if(e===P){if(P.inv_t>0&&((P.inv_t*20)|0)%2)continue;const fr=Math.floor(P.anim)&1;ctx.drawImage(PSPR[P.dir][fr],Math.round(P.x-8-camx),Math.round(P.y-8-camy));
+  if(e===P){if(P.inv_t>0&&((P.inv_t*20)|0)%2)continue;const fr=Math.floor(P.anim)&1;ctx.drawImage(PSPRS[P.outfit][P.dir][fr],Math.round(P.x-8-camx),Math.round(P.y-8-camy));
    if(P.swing>0&&P.tool){const tl=ICON[P.tool],a=(1-P.swing/.2)*1.6-.8;ctx.save();ctx.translate(Math.round(P.x+DX[P.dir]*10-camx),Math.round(P.y+2+DY[P.dir]*9-camy));ctx.rotate(a+P.dir*Math.PI/2);ctx.drawImage(tl,-8,-12);ctx.restore()}
    continue}
   const spr=ESPR[e.type][Math.floor(e.an*(e.type==='bat'?10:4))&1];
@@ -636,6 +663,11 @@ function startGame(){
  toast('Bata nas árvores (ESPAÇO ou AÇÃO) para coletar madeira.');
  setTimeout(()=>toast('Missões: veja o quadro no canto. J abre o diário.'),2800);
 }
+function pickOutfit(i){P.outfit=i;try{localStorage.setItem('sombra_outfit',i)}catch(e){}
+ $('outfits').querySelectorAll('.of').forEach((el,k)=>el.classList.toggle('sel',k===i));$('oname').textContent=OUT[i].n}
+(()=>{let o=0;try{o=+localStorage.getItem('sombra_outfit')||0}catch(e){}if(o<0||o>=OUT.length)o=0;
+ $('outfits').innerHTML=OUT.map((x,i)=>`<button class="of" title="${x.n}"><img src="${PSPRS[i][2][0].toDataURL()}"></button>`).join('');
+ $('outfits').querySelectorAll('.of').forEach((el,i)=>el.onclick=()=>pickOutfit(i));pickOutfit(o)})();
 $('play').onclick=startGame;
 $('respawn').onclick=()=>{dead=false;P.hp=60;P.food=Math.max(P.food,50);P.water=Math.max(P.water,50);P.en=80;P.inv_t=1.5;resetPlayer();revealExp();$('dead').style.display='none'};
 $('cont').onclick=()=>{$('end').style.display='none';state='play';checkMissions()};
